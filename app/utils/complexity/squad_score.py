@@ -3,9 +3,10 @@ from os import path
 import joblib
 import nltk
 import pandas as pd
+import sklearn
 
 PICKLE_PATH = path.join(path.dirname(__file__), "", "MinMaxScaler.pkl")
-scaler = joblib.load(PICKLE_PATH)
+scaler = joblib.load(PICKLE_PATH)  # requires `import sklearn`
 
 
 def metrics(document: str):
@@ -125,12 +126,13 @@ async def squad_score(document: str, scaler):
     an = weights["adj_num"] * scaled[4] * range_scaler
 
     # Add all values
-    squad_score = sl + awl + qn + uw + an
+    score = sl + awl + qn + uw + an
 
     # Ensure squad_score is a positive value
     # This would only be necessary for 1-2 sentence-long stories
     # or test sentences
-    if squad_score < 0:
-        squad_score = 0
+    if score < 0:
+        score = 0
 
-    return squad_score
+    return score
+

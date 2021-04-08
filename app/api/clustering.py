@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 
 from app.utils.clustering.clustering_mvp import batch_cluster
 

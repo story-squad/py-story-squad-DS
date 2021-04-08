@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 from google.cloud import vision
 from google.cloud.vision import types
 
-from app.utils.moderation.text_moderation import BadWordTextModerator
+from app.utils.moderation.text_moderation import TextModeration
 
 # XXX: Documentation parses to Markdown on FastAPI Swagger UI
 # Attribution: Most of this code is from transcription.py, safe_search.py, and
-# confidence_flag.py. To steamline the implementation with the deployed
+# confidence_flag.py. To streamline the implementation with the deployed
 # environment that code has been refactored into this file.
 
 
@@ -29,6 +29,9 @@ class GoogleAPI:
         # TODO: Refactor into separate function
         load_dotenv()
         if getenv("GOOGLE_CREDS") is not None:
+
+            print("Credentials found!")
+
             with open("/tmp/google.json", "wt") as fp:
                 # write file to /tmp containing all of the cred info
                 fp.write(getenv("GOOGLE_CREDS"))
@@ -45,7 +48,7 @@ class GoogleAPI:
         # init the client for use by the functions
         self.client = vision.ImageAnnotatorClient()
 
-        self.text_moderator = BadWordTextModerator(
+        self.text_moderator = TextModeration(
             path.join(
                 path.dirname(__file__), "..", "moderation", "bad_single.csv"
             )
@@ -162,7 +165,7 @@ class GoogleAPI:
                 ("racy: {}".format(likelihood_name[safe.racy])),
             ]
         # return in API friendly format
-        if flagged != []:
+        if flagged:
             return {"is_flagged": True, "reason": flagged}
         else:
             return {"is_flagged": False, "reason": None}

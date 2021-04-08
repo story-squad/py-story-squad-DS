@@ -1,5 +1,6 @@
-from google.cloud import vision
 import io
+
+from google.cloud import vision
 from google.oauth2 import service_account
 
 

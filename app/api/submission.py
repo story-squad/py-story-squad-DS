@@ -4,6 +4,7 @@ import logging
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from requests import get
+from dotenv import load_dotenv
 
 from app.utils.complexity.squad_score import squad_score, scaler
 from app.utils.img_processing.google_api import GoogleAPI, NoTextFoundException
@@ -12,6 +13,7 @@ from app.api.models import Submission, ImageSubmission
 # global variables and services
 router = APIRouter()
 log = logging.getLogger(__name__)
+load_dotenv()
 vision = GoogleAPI()
 
 
@@ -35,15 +37,15 @@ async def submission_text(sub: Submission):
     # unpack links for files in submission object
     for page_num in sub.Pages:
         # re-init the sha algorithm every file that is processed
-        hash = sha512()
+        hashed = sha512()
         # fetch file from s3 bucket
         r = get(sub.Pages[page_num]["URL"])
         # update the hash with the file's content
-        hash.update(r.content)
+        hashed.update(r.content)
         try:
             # assert that the hash is the same as the one passed with the file
             # link
-            assert hash.hexdigest() == sub.Pages[page_num]["Checksum"]
+            assert hashed.hexdigest() == sub.Pages[page_num]["Checksum"]
         except AssertionError:
             # return some useful information about the error including what
             # caused it and the file affected
@@ -53,7 +55,7 @@ async def submission_text(sub: Submission):
             )
         # unpack response from GoogleAPI
         conf_flag, flagged, trans = await vision.transcribe(r.content)
-        # concat transcriptions togeather
+        # concat transcriptions together
         transcriptions += trans + "\n"
         # add page to list of confidence flags
         confidence_flags.append(conf_flag)
@@ -87,13 +89,13 @@ async def submission_illustration(sub: ImageSubmission):
     """
     # fetch file from s3 bucket
     r = get(sub.URL)
-    # initalize the sha hashing algorithm
-    hash = sha512()
+    # initialize the sha hashing algorithm
+    hashed = sha512()
     # update the SHA with the file contents
-    hash.update(r.content)
+    hashed.update(r.content)
     # assert the the computed hash and the passed hash are the same
     try:
-        assert hash.hexdigest() == sub.Checksum
+        assert hashed.hexdigest() == sub.Checksum
     except AssertionError:
         # return bad hash error with the status_code to an ill-formed request
         return JSONResponse(status_code=422, content={"ERROR": "BAD CHECKSUM"})
