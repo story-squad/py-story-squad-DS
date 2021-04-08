@@ -41,8 +41,7 @@ sqlalchemy = "*"
 python-dotenv = "*"
 wget = "*"
 pillow = "*"
-pipfile = "*"
-jamspell = "*"
+
 
 [requires]
 python_version = "3"
