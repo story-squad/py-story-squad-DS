@@ -6,48 +6,32 @@ from google.cloud.vision import types
 
 from app.utils.moderation.text_moderation import TextModeration
 
-# XXX: Documentation parses to Markdown on FastAPI Swagger UI
-# Attribution: Most of this code is from transcription.py, safe_search.py, and
-# confidence_flag.py. To streamline the implementation with the deployed
-# environment that code has been refactored into this file.
-
 
 class GoogleAPI:
-    """# An Interface to Google's Vision API"""
+    """ An Interface to Google's Vision API """
 
     def __init__(self):
-        """function that prepares the GoogleAPI to handle requests from the
+        """ Class that prepares the GoogleAPI to handle requests from the
         endpoints.
 
-        initially, this function will be looking for the environment variable
+        Initially, this will be looking for the environment variable
         GOOGLE_CREDS that hold the content of the credential file from the
         Google API dashboard, as long as this environment variable is set this
         the function will write a temporary file to /tmp/google.json with that
-        content the will set a new variable GOOGLE_APPLICATION_CREDENTIALS
-        which is used by ImageAnnotatorClient to authorize the google API library
+        content then will set a new variable GOOGLE_APPLICATION_CREDENTIALS
+        which is used by ImageAnnotatorClient to authorize the google API library.
         """
         # TODO: Refactor into separate function
         load_dotenv()
         if getenv("GOOGLE_CREDS") is not None:
-
-            print("Credentials found!")
-
             with open("/tmp/google.json", "wt") as fp:
-                # write file to /tmp containing all of the cred info
                 fp.write(getenv("GOOGLE_CREDS"))
-                # make extra sure that the changes get flushed on to the disk
                 fp.flush()
-                # explicitly close file stream
                 fp.close()
-            # update the environment with the environment variable that google
-            # sdk is looking for
             environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/google.json"
         else:
             raise RuntimeError("Missing Google Credentials, Exiting app")
-
-        # init the client for use by the functions
         self.client = vision.ImageAnnotatorClient()
-
         self.text_moderator = TextModeration(
             path.join(
                 path.dirname(__file__), "..", "moderation", "bad_single.csv"
