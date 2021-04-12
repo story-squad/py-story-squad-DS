@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import load_dotenv
 
-from app.api import submission, visualization, clustering, db
+from app.api import submission, visualization, clustering
 from app.utils.security.header_checking import get_api_key
 
 app = FastAPI(
@@ -28,11 +28,6 @@ app.include_router(
 app.include_router(
     clustering.router,
     tags=['Clustering'],
-    dependencies=[Security(get_api_key)],
-)
-app.include_router(
-    db.router,
-    tags=['Database'],
     dependencies=[Security(get_api_key)],
 )
 
