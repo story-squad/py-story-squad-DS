@@ -9,11 +9,6 @@ from app.utils.visualizations import histogram, line_graph
 router = APIRouter()
 log = logging.getLogger(__name__)
 
-# New experiment
-import os
-from dotenv import load_dotenv
-from fastapi import HTTPException, Security, status
-from fastapi.security.api_key import APIKeyHeader
 
 @router.post("/viz/linegraph")
 def return_line_graph(data: LineGraphRequest):
@@ -21,9 +16,9 @@ def return_line_graph(data: LineGraphRequest):
 
     Arguments
     ---
-    `ScoreHistory` list - list with history of squadscores for current period
-
-    `StudentName` str - String containing the student's first name
+    `data` LineGraphRequest
+        `data.ScoreHistory` list - list with history of squadscores for current period
+        `data.StudentName` str - String containing the student's first name
 
     Returns:
     ---

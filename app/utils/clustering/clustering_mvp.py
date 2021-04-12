@@ -1,9 +1,10 @@
 import json
+from typing import Union
 
 import pandas as pd
 
 
-def cluster(cohort_submissions: dict) -> list:
+def cluster(cohort_submissions: dict) -> Union[list, str]:
     """
     Splits given dict into clusters of 4 based on their ranked complexity
 

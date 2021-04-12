@@ -2,50 +2,36 @@ from os import getenv, environ, path
 
 from dotenv import load_dotenv
 from google.cloud import vision
-from google.cloud.vision import types
 
-from app.utils.moderation.text_moderation import BadWordTextModerator
-
-# XXX: Documentation parses to Markdown on FastAPI Swagger UI
-# Attribution: Most of this code is from transcription.py, safe_search.py, and
-# confidence_flag.py. To steamline the implementation with the deployed
-# environment that code has been refactored into this file.
+from app.utils.moderation.text_moderation import TextModeration
 
 
 class GoogleAPI:
-    """# An Interface to Google's Vision API"""
+    """ An Interface to Google's Vision API """
 
     def __init__(self):
-        """function that prepares the GoogleAPI to handle requests from the
+        """ Class that prepares the GoogleAPI to handle requests from the
         endpoints.
 
-        initially, this function will be looking for the environment variable
+        Initially, this will be looking for the environment variable
         GOOGLE_CREDS that hold the content of the credential file from the
         Google API dashboard, as long as this environment variable is set this
         the function will write a temporary file to /tmp/google.json with that
-        content the will set a new variable GOOGLE_APPLICATION_CREDENTIALS
-        which is used by ImageAnnotatorClient to authorize the google API library
+        content then will set a new variable GOOGLE_APPLICATION_CREDENTIALS
+        which is used by ImageAnnotatorClient to authorize the google API library.
         """
         # TODO: Refactor into separate function
         load_dotenv()
         if getenv("GOOGLE_CREDS") is not None:
             with open("/tmp/google.json", "wt") as fp:
-                # write file to /tmp containing all of the cred info
                 fp.write(getenv("GOOGLE_CREDS"))
-                # make extra sure that the changes get flushed on to the disk
                 fp.flush()
-                # explicitly close file stream
                 fp.close()
-            # update the environment with the environment variable that google
-            # sdk is looking for
             environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/google.json"
         else:
             raise RuntimeError("Missing Google Credentials, Exiting app")
-
-        # init the client for use by the functions
         self.client = vision.ImageAnnotatorClient()
-
-        self.text_moderator = BadWordTextModerator(
+        self.text_moderator = TextModeration(
             path.join(
                 path.dirname(__file__), "..", "moderation", "bad_single.csv"
             )
@@ -64,14 +50,9 @@ class GoogleAPI:
         """
         # read the file's content and cast into Image type
         # use async friendly await function to fetch read
-        image = types.Image(content=document)
-        # adding refined language specification to sort out Non-English
-        # characters from transcription responses
-        language = types.ImageContext(language_hints=["en-t-i0-handwrit"])
+        image = vision.Image(content=document)
         # Connect to Google API client with the file that is built above
-        response = self.client.document_text_detection(
-            image=image, image_context=language
-        )
+        response = self.client.document_text_detection(image=image)
         # check if there are transcriptions from google
         if response.text_annotations:
             # store and process the response
@@ -139,7 +120,7 @@ class GoogleAPI:
         """
         # init a empty list
         flagged = []
-        image = types.Image(content=document)
+        image = vision.Image(content=document)
         # call safe_search_detection search on the image
         response = self.client.safe_search_detection(image=image)
         safe = response.safe_search_annotation
@@ -162,7 +143,7 @@ class GoogleAPI:
                 ("racy: {}".format(likelihood_name[safe.racy])),
             ]
         # return in API friendly format
-        if flagged != []:
+        if flagged:
             return {"is_flagged": True, "reason": flagged}
         else:
             return {"is_flagged": False, "reason": None}
