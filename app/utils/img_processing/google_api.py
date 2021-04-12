@@ -51,13 +51,8 @@ class GoogleAPI:
         # read the file's content and cast into Image type
         # use async friendly await function to fetch read
         image = vision.Image(content=document)
-        # adding refined language specification to sort out Non-English
-        # characters from transcription responses
-        language = vision.ImageContext({"languageHints": ["en-t-i0-handwrit"]})
         # Connect to Google API client with the file that is built above
-        response = self.client.document_text_detection(
-            image=image, image_context=language
-        )
+        response = self.client.document_text_detection(image=image)
         # check if there are transcriptions from google
         if response.text_annotations:
             # store and process the response
