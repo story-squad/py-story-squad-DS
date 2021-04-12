@@ -2,7 +2,6 @@ from os import getenv, environ, path
 
 from dotenv import load_dotenv
 from google.cloud import vision
-from google.cloud.vision import types
 
 from app.utils.moderation.text_moderation import TextModeration
 
@@ -51,10 +50,10 @@ class GoogleAPI:
         """
         # read the file's content and cast into Image type
         # use async friendly await function to fetch read
-        image = types.Image(content=document)
+        image = vision.Image(content=document)
         # adding refined language specification to sort out Non-English
         # characters from transcription responses
-        language = types.ImageContext(language_hints=["en-t-i0-handwrit"])
+        language = vision.ImageContext({"languageHints": ["en-t-i0-handwrit"]})
         # Connect to Google API client with the file that is built above
         response = self.client.document_text_detection(
             image=image, image_context=language
@@ -126,7 +125,7 @@ class GoogleAPI:
         """
         # init a empty list
         flagged = []
-        image = types.Image(content=document)
+        image = vision.Image(content=document)
         # call safe_search_detection search on the image
         response = self.client.safe_search_detection(image=image)
         safe = response.safe_search_annotation
