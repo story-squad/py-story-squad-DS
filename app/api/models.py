@@ -1,4 +1,5 @@
 import sys
+from random import randint
 from typing import List
 
 from pydantic import BaseModel, Field, validator
@@ -180,3 +181,16 @@ class ClusterSubmission(BaseModel):
         },
         description="A dictionary with page number as keys and url for values",
     )
+
+
+class CohortSubmission(BaseModel):
+    submissions: List[dict] = Field(..., example=[
+        {
+            "id": str(i),
+            "Image": "http://lorempixel.com/640/480/abstract",
+            "Inappropriate": False,
+            "Sensitive": False,
+            "Status": "APPROVED",
+            "Complexity": randint(1, 100),
+        } for i in range(1, 14)
+    ])
