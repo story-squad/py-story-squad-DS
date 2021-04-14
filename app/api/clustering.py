@@ -1,7 +1,5 @@
-import json
 import logging
 from itertools import cycle
-from math import ceil
 from typing import List
 
 from fastapi import APIRouter
@@ -118,8 +116,7 @@ async def cohort_clusters(sub: CohortSubmission):
 
 
 async def clustering(data: List[dict]) -> List[List[dict]]:
-    """Splits given list into clusters of 4 based on their complexity.
-    """
+    """ Splits list into clusters of 4 based on their complexity. """
     num_submissions = len(data)
     remainder = num_submissions % 4
     num_bots = 0 if remainder == 0 else 4 - remainder
