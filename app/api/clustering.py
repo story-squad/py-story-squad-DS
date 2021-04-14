@@ -17,7 +17,9 @@ log = logging.getLogger(__name__)
 
 @router.post("/cluster")
 async def cluster_endpoint(sub: dict):
-    """Endpoint takes a list of cohort and submission objects then returns
+    """ !!! DEPRECATED !!!
+
+    Endpoint takes a list of cohort and submission objects then returns
     clusters based on cohort in groups of 4.
 
     Arguments:
@@ -116,6 +118,8 @@ async def cohort_clusters(sub: CohortSubmission):
 
 
 async def clustering(data: List[dict]) -> List[List[dict]]:
+    """Splits given list into clusters of 4 based on their complexity.
+    """
     num_submissions = len(data)
     remainder = num_submissions % 4
     num_bots = 0 if remainder == 0 else 4 - remainder
