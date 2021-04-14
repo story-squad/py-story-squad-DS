@@ -2,6 +2,7 @@ import json
 import logging
 from itertools import cycle
 from math import ceil
+from typing import List
 
 from fastapi import APIRouter
 
@@ -73,7 +74,48 @@ async def cluster_endpoint(sub: dict):
 
 @router.post("/cohort-clusters")
 async def cohort_clusters(sub: CohortSubmission):
-    data = sub.submissions
+    """Endpoint takes a list of cohort and submission objects then returns
+    clusters based on cohort in groups of 4.
+
+    Arguments:
+    ---
+    sub: CohortSubmission
+        sub.submissions: List[dict]
+        [
+            {
+                "id": '1',
+                "Image": "http://lorempixel.com/640/480/abstract",
+                "Inappropriate": False,
+                "Sensitive": False,
+                "Status": "APPROVED",
+                "Complexity": 123,
+            },
+            ...
+        ]
+
+    Returns: List[List[dict]]
+    ---
+    list of clusters defined by the following form:
+    [
+        [
+            {'id': '1', 'Complexity': 123},
+            {'id': '2', 'Complexity': 124},
+            {'id': '3', 'Complexity': 125},
+            {'id': '4', 'Complexity': 126},
+        ],
+        [
+            {'id': '5', 'Complexity': 119},
+            {'id': '6', 'Complexity': 120},
+            {'id': '7', 'Complexity': 121},
+            {'id': '8', 'Complexity': 122},
+        ],
+        ...
+    ]
+    """
+    return await clustering(sub.submissions)
+
+
+async def clustering(data: List[dict]) -> List[List[dict]]:
     num_submissions = len(data)
     remainder = num_submissions % 4
     num_bots = 0 if remainder == 0 else 4 - remainder
