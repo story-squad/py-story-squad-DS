@@ -180,3 +180,10 @@ class ClusterSubmission(BaseModel):
         },
         description="A dictionary with page number as keys and url for values",
     )
+
+
+class ScoringRequest(BaseModel):
+    """Model that handles requests to score text that is already transcribed"""
+
+    """A string containing a transcribed story"""
+    transcription: str = Field(..., example="Once upon a time...")
